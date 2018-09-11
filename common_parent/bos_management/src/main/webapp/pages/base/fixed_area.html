@@ -89,10 +89,7 @@
 				field : 'fixedAreaNum',
 				title : '定区编号',
 				width : 120,
-				align : 'center',
-				formatter : function(value,row,index){
-					return row.id ;
-				}
+				align : 'center'
 			},{
 				field : 'fixedAreaName',
 				title : '定区名称',
@@ -169,7 +166,7 @@
 					border : true,
 					rownumbers : true,
 					striped : true,
-					url : "../../data/sub_area.json",
+					url : "../../data/association_subarea.json",
 					columns : [ [{
 						field : 'id',
 						title : '分拣编号',
@@ -209,7 +206,7 @@
 							return "";
 						}
 					}, {
-						field : 'keyWords',
+						field : 'addresskey',
 						title : '关键字',
 						width : 120,
 						align : 'center'
@@ -229,9 +226,9 @@
 						width : 100,
 						align : 'center'
 					} , {
-						field : 'assistKeyWords',
-						title : '辅助关键字',
-						width : 100,
+						field : 'position',
+						title : '位置',
+						width : 200,
 						align : 'center'
 					} ] ]
 				});
@@ -258,56 +255,7 @@
 						align : 'center'
 					}]]
 				});
-				$('#association_courier').datagrid({
-					fit : true,
-					border : true,
-					rownumbers : true,
-					striped : true,
-					url : "../../data/courier.json",
-					columns : [[{
-						field : 'id',
-						title : '编号',
-						width : 120,
-						align : 'center'
-					},{
-						field : 'courierNum',
-						title : '快递员工号',
-						width : 120,
-						align : 'center'
-					},{
-						field : 'name',
-						title : '快递员姓名',
-						width : 120,
-						align : 'center'
-					}, {
-						field : 'standard.name',
-						title : '收派标准',
-						width : 120,
-						align : 'center',
-						formatter : function(value,row,index){
-							if(row.standard != null){
-								return row.standard.name;
-							}
-							return null ; 
-						}
-					}, {
-						field : 'taketime.name',
-						title : '收派时间',
-						width : 120,
-						align : 'center',
-						formatter : function(value,row,index){
-							if(row.taketime != null){
-								return row.taketime.name;
-							}
-							return null ; 
-						}
-					}, {
-						field : 'company',
-						title : '所属单位',
-						width : 120,
-						align : 'center'
-					}]]
-				});
+				
 			}
 		</script>
 	</head>
@@ -318,9 +266,6 @@
 		</div>
 		<div region="south" border="false" style="height:150px">
 			<div id="tabs" fit="true" class="easyui-tabs">
-				<div title="关联快递员" id="courier" style="width:100%;height:100%;overflow:hidden">
-					<table id="association_courier"></table>
-				</div>
 				<div title="关联分区" id="subArea" style="width:100%;height:100%;overflow:hidden">
 					<table id="association_subarea"></table>
 				</div>
@@ -357,21 +302,23 @@
 							</td>
 						</tr>
 						<tr>
-							<td>负责人</td>
+							<td>选择负责人</td>
 							<td>
-								<input name="fixedAreaLeader" class="easyui-validatebox" required="true"/>
+								<input class="easyui-combobox" name="courier.id" data-options="valueField:'id',textField:'name',url:'../../data/courier.json'" />
 							</td>
 						</tr>
-						<tr>
-							<td>联系电话</td>
+						<tr height="300">
+							<td valign="top">关联分区</td>
 							<td>
-								<input name="telephone" class="easyui-validatebox" required="true"/>
-							</td>
-						</tr>
-						<tr>
-							<td>所属公司</td>
-							<td>
-								<input name="company" class="easyui-validatebox" required="true"/>
+								<table id="subareaGrid" class="easyui-datagrid" border="false" style="width:300px;height:300px" data-options="url:'../../data/fixedarea_subarea.json',fitColumns:true,singleSelect:false">
+									<thead>
+										<tr>
+											<th data-options="field:'id',width:30,checkbox:true">编号</th>
+											<th data-options="field:'addresskey',width:150">关键字</th>
+											<th data-options="field:'position',width:200,align:'right'">位置</th>
+										</tr>
+									</thead>
+								</table>
 							</td>
 						</tr>
 					</table>
@@ -395,7 +342,7 @@
 						<tr>
 							<td>所属单位</td>
 							<td>
-								<input type="text" name="company" class="easyui-validatebox" required="true" />
+								<input type="text" name="courier.company" class="easyui-validatebox" required="true" />
 							</td>
 						</tr>
 						<tr>
@@ -413,7 +360,7 @@
 		</div>
 
 		<!-- 关联客户窗口 -->
-		<div class="easyui-window" title="关联客户窗口" id="customerWindow" collapsible="false" closed="true" minimizable="false" maximizable="false" style="top:20px;left:200px;width: 600px;height: 300px;">
+		<div class="easyui-window" title="关联客户窗口" id="customerWindow" collapsible="false" closed="true" minimizable="false" maximizable="false" style="top:20px;left:200px;width: 400px;height: 300px;">
 			<div style="overflow:auto;padding:5px;" border="false">
 				<form id="customerForm" action="../../decidedzone_assigncustomerstodecidedzone.action" method="post">
 					<table class="table-edit" width="80%" align="center">
@@ -423,8 +370,7 @@
 						<tr>
 							<td>
 								<input type="hidden" name="id" id="customerFixedAreaId" />
-								未关联定区客户列表 <br />
-								<select id="noassociationSelect" multiple="multiple" size="10" style="width:200px;"></select>
+								<select id="noassociationSelect" multiple="multiple" size="10"></select>
 							</td>
 							<td>
 								<input type="button" value="》》" id="toRight">
@@ -432,8 +378,7 @@
 								<input type="button" value="《《" id="toLeft">
 							</td>
 							<td>
-								已关联定区客户列表 <br />
-								<select id="associationSelect" name="customerIds" multiple="multiple" size="10" style="width:200px;"></select>
+								<select id="associationSelect" name="customerIds" multiple="multiple" size="10"></select>
 							</td>
 						</tr>
 						<tr>
